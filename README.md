@@ -102,7 +102,8 @@ cat /root/socks5-info.txt
 ```bash
 systemctl is-active danted
 ss -lntp | grep 23412
-passwd -S socks5
+cat /root/socks5-info.txt
+getent passwd 这里填写上面“用户名”这一行的账号
 ```
 
 需要重设账号密码时，重新运行一键命令并输入新的端口、账号和密码即可。
