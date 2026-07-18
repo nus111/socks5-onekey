@@ -14,9 +14,9 @@ green='\033[32m'
 yellow='\033[33m'
 reset='\033[0m'
 
-info() { printf "${green}[+]${reset} %s\n" "$*"; }
-warn() { printf "${yellow}[!]${reset} %s\n" "$*"; }
-die() { printf "${red}[x]${reset} %s\n" "$*" >&2; exit 1; }
+info() { printf '%b[+]%b %s\n' "$green" "$reset" "$*"; }
+warn() { printf '%b[!]%b %s\n' "$yellow" "$reset" "$*"; }
+die() { printf '%b[x]%b %s\n' "$red" "$reset" "$*" >&2; exit 1; }
 
 require_root() {
   [[ "$(id -u)" -eq 0 ]] || die "请使用 root 用户运行此脚本。"
@@ -24,11 +24,31 @@ require_root() {
 
 require_debian() {
   [[ -r /etc/os-release ]] || die "未识别到当前操作系统。"
+  # shellcheck disable=SC1091
   . /etc/os-release
   case "${ID:-}:${ID_LIKE:-}" in
     debian:*|ubuntu:*|*:debian*) ;;
     *) die "此脚本仅支持 Debian 和 Ubuntu。" ;;
   esac
+}
+
+prompt_config() {
+  local input
+  echo
+  printf '%b========== SOCKS5 一键搭建 ==========%b\n' "$green" "$reset"
+  echo "直接按回车可使用括号中的默认值。"
+  echo
+
+  read -r -p "请输入 SOCKS5 端口 [默认：$PORT]：" input
+  PORT="${input:-$PORT}"
+
+  read -r -p "请输入 SOCKS5 账号 [默认：$SOCKS_USER]：" input
+  SOCKS_USER="${input:-$SOCKS_USER}"
+
+  read -r -s -p "请输入 SOCKS5 密码 [留空自动生成]：" input
+  echo
+  SOCKS_PASS="${input:-${SOCKS_PASS:-}}"
+  echo
 }
 
 default_interface() {
@@ -150,21 +170,26 @@ save_and_show_info() {
   chmod 0600 "$CREDENTIALS"
 
   echo
-  printf "${green}========== SOCKS5 搭建完成 ==========${reset}\n"
+  printf '%b========== SOCKS5 搭建完成 ==========%b\n' "$green" "$reset"
   [[ -n "$ipv4" ]] && printf "公网 IPv4：%s\n" "$ipv4"
   [[ -n "$ipv6" ]] && printf "公网 IPv6：%s\n" "$ipv6"
   printf "端口：     %s\n" "$PORT"
   printf "用户名：   %s\n" "$SOCKS_USER"
   printf "密码：     %s\n" "$password"
   printf "信息保存： %s\n" "$CREDENTIALS"
-  printf "${green}==================================${reset}\n"
+  printf '%b==================================%b\n' "$green" "$reset"
 }
 
 install_socks5() {
   require_root
   require_debian
-  [[ "$PORT" =~ ^[0-9]+$ ]] && (( PORT >= 1 && PORT <= 65535 )) ||
+  if [[ "${NONINTERACTIVE:-0}" != "1" ]]; then
+    [[ -t 0 ]] || die "当前终端不支持交互输入，请使用 README 中的 bash <(curl ...) 命令。"
+    prompt_config
+  fi
+  if [[ ! "$PORT" =~ ^[0-9]+$ ]] || (( 10#$PORT < 1 || 10#$PORT > 65535 )); then
     die "SOCKS_PORT 必须是 1 到 65535 之间的端口。"
+  fi
   [[ "$SOCKS_USER" =~ ^[a-z_][a-z0-9_-]*$ ]] ||
     die "SOCKS_USER 包含不支持的字符。"
 

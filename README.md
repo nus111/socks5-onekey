@@ -20,7 +20,15 @@
 apt-get update -y && apt-get install -y curl && bash <(curl -fsSL https://raw.githubusercontent.com/nus111/socks5-onekey/main/install.sh)
 ```
 
-无需提前下载脚本，也无需手动填写本机 IP。脚本会自动识别公网 IPv4/IPv6，并自动生成账号密码。
+无需提前下载脚本，也无需手动填写本机 IP。运行后会依次提示：
+
+```text
+请输入 SOCKS5 端口 [默认：1080]：
+请输入 SOCKS5 账号 [默认：socks5]：
+请输入 SOCKS5 密码 [留空自动生成]：
+```
+
+依次输入端口、账号和密码即可。全部依赖会自动安装，脚本也会自动识别公网 IPv4/IPv6。
 
 安装完成后，终端会直接显示：
 
@@ -38,10 +46,10 @@ Password: 自动生成的密码
 /root/socks5-info.txt
 ```
 
-## 自定义端口、用户名和密码
+## 无交互自动安装
 
 ```bash
-SOCKS_PORT=23456 SOCKS_USER=myuser SOCKS_PASS='YourStrongPassword' \
+NONINTERACTIVE=1 SOCKS_PORT=23456 SOCKS_USER=myuser SOCKS_PASS='YourStrongPassword' \
 bash <(curl -fsSL https://raw.githubusercontent.com/nus111/socks5-onekey/main/install.sh)
 ```
 
