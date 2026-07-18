@@ -14,11 +14,13 @@
 
 ## 一键安装
 
-使用 `root` 登录 VPS，然后复制下面整条命令执行：
+使用 `root` 登录 VPS，然后复制下面这一整条命令执行：
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/nus111/socks5-onekey/main/install.sh)
+apt-get update -y && apt-get install -y curl && bash <(curl -fsSL https://raw.githubusercontent.com/nus111/socks5-onekey/main/install.sh)
 ```
+
+无需提前下载脚本，也无需手动填写本机 IP。脚本会自动识别公网 IPv4/IPv6，并自动生成账号密码。
 
 安装完成后，终端会直接显示：
 

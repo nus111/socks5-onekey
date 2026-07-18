@@ -1,0 +1,23 @@
+name: 中文脚本检查
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: 检查安装脚本
+    runs-on: ubuntu-latest
+    steps:
+      - name: 获取仓库代码
+        uses: actions/checkout@v4
+
+      - name: 检查 Bash 语法
+        run: bash -n install.sh
+
+      - name: 安装 ShellCheck
+        run: sudo apt-get update -y && sudo apt-get install -y shellcheck
+
+      - name: 执行 ShellCheck
+        run: shellcheck install.sh
