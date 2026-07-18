@@ -87,6 +87,26 @@ bash <(curl -fsSL https://raw.githubusercontent.com/nus111/socks5-onekey/main/in
 - 请妥善保存 `/root/socks5-info.txt`。
 - 建议在云厂商防火墙中仅向自己的固定 IP 放行 SOCKS5 端口。
 
+## 认证失败排查
+
+如果客户端提示 `username/password authentication failed`，说明 VPS 端口已经连通，但账号密码没有通过 Dante 认证。请在 VPS 上执行：
+
+```bash
+cat /root/socks5-info.txt
+```
+
+优先复制文件中“可复制的节点链接”整行，不要手动修改其中的 `%40`、`%23` 等编码字符。如果客户端使用分开的账号密码输入框，账号填写“用户名”，密码填写“密码”这一行的原始内容。
+
+检查服务状态：
+
+```bash
+systemctl is-active danted
+ss -lntp | grep 23412
+passwd -S socks5
+```
+
+需要重设账号密码时，重新运行一键命令并输入新的端口、账号和密码即可。
+
 ## 开源协议
 
 [MIT](LICENSE)
