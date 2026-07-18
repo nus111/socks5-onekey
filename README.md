@@ -33,12 +33,21 @@ apt-get update -y && apt-get install -y curl && bash <(curl -fsSL https://raw.gi
 安装完成后，终端会直接显示：
 
 ```text
-IPv4:     VPS 公网 IPv4
-IPv6:     VPS 公网 IPv6
-Port:     1080
-Username: socks5
-Password: 自动生成的密码
+公网 IPv4：VPS 公网 IPv4
+公网 IPv6：VPS 公网 IPv6
+端口：1080
+用户名：socks5
+密码：自动生成的密码
 ```
+
+最后还会输出可以直接复制到客户端的节点链接：
+
+```text
+socks5://socks5:密码@公网IPv4:1080
+socks5://socks5:密码@[公网IPv6]:1080
+```
+
+如果 VPS 同时拥有公网 IPv4 和 IPv6，会分别生成两条链接。
 
 连接信息同时保存在 VPS 的：
 

@@ -70,6 +70,21 @@ generate_password() {
   openssl rand -hex 10
 }
 
+url_encode() {
+  local LC_ALL=C value="$1" output="" char hex i
+  for ((i = 0; i < ${#value}; i++)); do
+    char="${value:i:1}"
+    case "$char" in
+      [a-zA-Z0-9.~_-]) output+="$char" ;;
+      *)
+        printf -v hex '%%%02X' "'$char"
+        output+="$hex"
+        ;;
+    esac
+  done
+  printf '%s' "$output"
+}
+
 install_packages() {
   info "正在安装 Dante SOCKS5 服务端……"
   export DEBIAN_FRONTEND=noninteractive
@@ -153,9 +168,15 @@ configure_firewall() {
 }
 
 save_and_show_info() {
-  local password="$1" ipv4 ipv6
+  local password="$1" ipv4 ipv6 encoded_user encoded_password ipv4_link ipv6_link
   ipv4="$(public_ipv4)"
   ipv6="$(public_ipv6)"
+  encoded_user="$(url_encode "$SOCKS_USER")"
+  encoded_password="$(url_encode "$password")"
+  ipv4_link=""
+  ipv6_link=""
+  [[ -n "$ipv4" ]] && ipv4_link="socks5://$encoded_user:$encoded_password@$ipv4:$PORT"
+  [[ -n "$ipv6" ]] && ipv6_link="socks5://$encoded_user:$encoded_password@[$ipv6]:$PORT"
 
   umask 077
   {
@@ -166,6 +187,10 @@ save_and_show_info() {
     echo "端口：$PORT"
     echo "用户名：$SOCKS_USER"
     echo "密码：$password"
+    echo
+    echo "可复制的节点链接："
+    [[ -n "$ipv4_link" ]] && echo "$ipv4_link"
+    [[ -n "$ipv6_link" ]] && echo "$ipv6_link"
   } > "$CREDENTIALS"
   chmod 0600 "$CREDENTIALS"
 
@@ -178,6 +203,10 @@ save_and_show_info() {
   printf "密码：     %s\n" "$password"
   printf "信息保存： %s\n" "$CREDENTIALS"
   printf '%b==================================%b\n' "$green" "$reset"
+  echo
+  printf '%b复制下面的节点链接：%b\n' "$green" "$reset"
+  [[ -n "$ipv4_link" ]] && printf '%s\n' "$ipv4_link"
+  [[ -n "$ipv6_link" ]] && printf '%s\n' "$ipv6_link"
 }
 
 install_socks5() {
